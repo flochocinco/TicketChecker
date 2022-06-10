@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <cn.leo.produce.ZxingView
+        android:id="@+id/zxingView"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:layout_weight="1"
+        app:interactiveViewColor="#118eea"
+        app:interactiveViewMaskColor="#a0000000"
+        app:recognizeRectHeightInDp="270"
+        app:recognizeRectWidthInDp="270">
+
+    </cn.leo.produce.ZxingView>
+
+    <ListView
+        android:id="@+id/listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="4" />
+
+</LinearLayout>
