@@ -1,1 +1,1 @@
-include ':TicketChecker', ':ZxingViewLib'
+include ':TicketCheckerModule', ':ZxingViewLib'
