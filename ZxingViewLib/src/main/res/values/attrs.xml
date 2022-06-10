@@ -1,0 +1,10 @@
+<resources>
+    <declare-styleable name="ZxingView">
+
+        <attr name="useDefaultInteractiveView" format="boolean" />
+        <attr name="interactiveViewColor" format="string" />
+        <attr name="interactiveViewMaskColor" format="string" />
+        <attr name="recognizeRectWidthInDp" format="integer" />
+        <attr name="recognizeRectHeightInDp" format="integer" />
+    </declare-styleable>
+</resources>
