@@ -15,5 +15,9 @@ it contains two modules:
  
  Basicaly it will read a QR Code with library, read used ID from Google Sheet, and update the sheet if needed
  
+# Prerequesites
+In order to work, one needs to create Google Cloud Platform (free) client ID for android. read this page:
+https://developers.google.com/fit/android/get-api-key
+ 
 # How to use ?
 Download or pull repo and open it with Android Studio IDE
