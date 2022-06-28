@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Cezam Demat</string>
     <string name="already_used">Déjà utilisé</string>
+    <string name="Partner">Partenaire:</string>
+    <string name="Default_Partner_Name">Cinéma Les Studios</string>
+    <string name="Partner_Name_Hint">Nom du partenaire</string>
 </resources>

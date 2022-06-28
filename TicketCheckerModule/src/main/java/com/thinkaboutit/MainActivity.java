@@ -12,13 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -29,8 +29,10 @@ import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.sheets.v4.SheetsScopes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -47,9 +49,11 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> launcher;
     protected Intent signInIntent;
     ExecutorService mExecutor = Executors.newSingleThreadExecutor();
+    GoogleAccountCredential cred;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -62,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
                     //Toast.makeText(this, "logged in !!!", Toast.LENGTH_SHORT).show();
-                    GoogleAccountCredential cred = GoogleAccountCredential.usingOAuth2(MainActivity.this, Collections.singletonList(SheetsScopes.SPREADSHEETS))
+                    cred = GoogleAccountCredential.usingOAuth2(MainActivity.this, Collections.singletonList(SheetsScopes.SPREADSHEETS))
                             .setBackOff(new ExponentialBackOff());
 
                     try {
@@ -72,7 +76,11 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Unexpected error while logging in", Toast.LENGTH_SHORT).show();
                     }
 
-                    Runnable runnable = () -> new GetValue().readSpreadSheet(cred);
+                    Runnable runnable = () -> {
+                        List<Object> usedIds = new GetValue().readSpreadSheet(cred);
+                        usedIds.forEach(this::addId);
+                    };
+                    //Runnable runnable = () -> new GetValue().writeData(cred);
                     mExecutor.execute(runnable);
                 });
 
@@ -84,13 +92,18 @@ public class MainActivity extends AppCompatActivity {
                 if(debounced){
                     return;
                 }
-                String res = listItems.add(result) ? "OK: " : getString(R.string.already_used);
-                res += result;
-                adapter.insert(res, 0);
+                boolean isUnique = addId(result);
+                if(isUnique){
+                    List<Object> data = Arrays.asList(result,"","",((TextView)findViewById(R.id.PartnerName)).getText().toString());
+                    Runnable runnable = () -> new GetValue().writeData(cred, data);
+                    mExecutor.execute(runnable);
+                }
                 debounced = true;
                 final Handler handler = new Handler();
                 handler.postDelayed(() -> debounced = false, 2000);
             });
+
+        registerCredentials();
 
         adapter=new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1,
@@ -115,20 +128,30 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    protected boolean addId(Object result) {
+        boolean isUnique = listItems.add(result.toString());
+        String res = isUnique ? "OK: " : getString(R.string.already_used);
+        res += result;
+        String finalRes = res;
+        runOnUiThread( () -> adapter.insert(finalRes, 0));
+        return isUnique;
+    }
+
     @Override
     protected void onDestroy() {
         mExecutor.shutdown();
         super.onDestroy();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.R)
-    public void buttonClicked(View v){
-        if(!Environment.isExternalStorageManager()){
-            Intent intent = new Intent();
-            intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-            Uri uri = Uri.fromParts("package", this.getPackageName(), null);
-            intent.setData(uri);
-            startActivity(intent);
+    public void registerCredentials(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if(!Environment.isExternalStorageManager()){
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                Uri uri = Uri.fromParts("package", this.getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);
+            }
         }
         GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope(SheetsScopes.SPREADSHEETS))
