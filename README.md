@@ -2,6 +2,8 @@ Started from ZxingView-master
 https://github.com/fanrunqi/ZxingView
 
 # Introduction
+I'm still learning android dev, so feel free to report issue, enhancement and better way to work
+
 Android App for a ticket checking (cinema, museum, etc...)
 
 # Use case
